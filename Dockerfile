@@ -1,4 +1,4 @@
-FROM rust:latest as build
+FROM rust:latest as builder
 
 RUN USER=root cargo new --bin app
 WORKDIR /app
@@ -15,6 +15,6 @@ RUN cargp build --release
 
 FROM debia:buster-slim
 
-COPY --from=build /app/target/release/app .
+COPY --from=builder /app/target/release/app .
 
 CMD ["app"]

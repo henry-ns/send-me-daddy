@@ -5,4 +5,7 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
+kafka = "0.9.0"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.105"
+tokio = { version = "1.32.0", features = ["rt"] }
