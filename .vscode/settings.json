@@ -2,5 +2,9 @@
   "cSpell.words": [
     "actix",
     "tokio"
+  ],
+  "rust-analyzer.linkedProjects": [
+    "./Cargo.toml",
+    "./Cargo.toml"
   ]
 }
