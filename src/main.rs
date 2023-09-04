@@ -1,10 +1,12 @@
+extern crate dotenv;
+
 mod queue;
 
 use crate::queue::Queue;
-
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use kafka::client::KafkaClient;
+use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Deserialize, Serialize, Clone, Copy)]
 struct Hello<'a> {
@@ -12,7 +14,7 @@ struct Hello<'a> {
 }
 
 #[get("/")]
-async fn hello(queue: web::Data<Queue<'_>>) -> impl Responder {
+async fn hello(queue: web::Data<Queue>) -> impl Responder {
     let msg = Hello {
         message: "Hello word",
     };
@@ -24,18 +26,12 @@ async fn hello(queue: web::Data<Queue<'_>>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let host = "localhost:9092";
-    let mut client = KafkaClient::new(vec![host.to_owned()]);
-    client.load_metadata_all().unwrap();
+    dotenv().ok();
 
-    println!("Kafka Topics:");
-    for topic in client.topics() {
-        for partition in topic.partitions() {
-            println!("  - {} #{}", topic.name(), partition.id(),);
-        }
-    }
+    let kafka_host = env::var("KAFKA_HOST").ok().unwrap();
+    let http_host = env::var("HTTP_HOST").ok().unwrap();
 
-    let queue = Queue::new(host);
+    let queue = Queue::new(kafka_host);
 
     queue.subscribe_to("email", |m| {
         let msg = std::str::from_utf8(m.value);
@@ -52,7 +48,7 @@ async fn main() -> std::io::Result<()> {
     let app_data = web::Data::new(queue);
 
     HttpServer::new(move || App::new().app_data(app_data.clone()).service(hello))
-        .bind("127.0.0.1:8080")?
+        .bind(http_host)?
         .run()
         .await
 }
