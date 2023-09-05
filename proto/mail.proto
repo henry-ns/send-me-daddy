@@ -1,0 +1,14 @@
+syntax = "proto3";
+package mail;
+
+service Mail {
+  rpc Send (MailRequest) returns (MailResponse);
+}
+
+message MailRequest {
+  string name = 1;
+}
+
+message MailResponse {
+  string message = 1;
+}
