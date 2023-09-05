@@ -2,6 +2,7 @@
 name = "send-me-daddy"
 version = "0.1.0"
 edition = "2021"
+default-run = "http"
 
 [dependencies]
 actix-web = "4"
