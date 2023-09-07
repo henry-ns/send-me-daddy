@@ -17,8 +17,8 @@ async fn main() -> std::io::Result<()> {
     println!("Init HTTP server");
     dotenv().ok();
 
-    let queue_host = env::var("KAFKA_HOST").ok().unwrap();
-    let http_port: u16 = env::var("HTTP_PORT").ok().unwrap().parse().unwrap();
+    let queue_host = env::var("KAFKA_HOST").unwrap();
+    let http_port: u16 = env::var("HTTP_PORT").unwrap().parse().unwrap();
 
     let queue = Queue::new(queue_host);
 
