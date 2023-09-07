@@ -14,6 +14,7 @@ pub async fn send_email(queue: web::Data<Queue>, payload: web::Json<Email>) -> i
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    println!("Init HTTP server");
     dotenv().ok();
 
     let queue_host = env::var("KAFKA_HOST").ok().unwrap();

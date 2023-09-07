@@ -1,7 +1,11 @@
+extern crate dotenv;
+
 pub mod mail {
     tonic::include_proto!("mail");
 }
 
+use dotenv::dotenv;
+use std::env;
 use tonic::{transport::Server, Request, Response, Status};
 
 use crate::mail::{
@@ -15,6 +19,8 @@ pub struct MyMail {}
 #[tonic::async_trait]
 impl Mail for MyMail {
     async fn send(&self, request: Request<MailRequest>) -> Result<Response<MailResponse>, Status> {
+        println!("Requested by {:?}", request.get_ref().name);
+
         Ok(Response::new(MailResponse {
             message: format!("hello {}", request.get_ref().name),
         }))
@@ -23,10 +29,12 @@ impl Mail for MyMail {
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:50051".parse().unwrap();
+    dotenv().ok();
+
+    let addr = env::var("GRPC_HOST").unwrap().parse().unwrap();
     let mail = MyMail::default();
 
-    println!("Server listening on {:?}", addr);
+    println!("Init gRPC server on {:?}", addr);
 
     Server::builder()
         .add_service(MailServer::new(mail))
