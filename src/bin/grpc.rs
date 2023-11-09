@@ -31,10 +31,12 @@ impl Mail for MyMail {
     async fn send(&self, request: Request<MailRequest>) -> Result<Response<MailResponse>, Status> {
         println!("Requested by {:?}", request.get_ref().name);
 
+        let topic = env::var("KAFKA_TOPIC").unwrap();
+        
         let result = self
             .queue
             .send_to(
-                "mail",
+                &topic,
                 Email {
                     host: "test".to_owned(),
                     body: "body".to_owned(),
