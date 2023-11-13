@@ -7,7 +7,9 @@ use std::env;
 
 #[post("/")]
 pub async fn send_email(queue: web::Data<Queue>, payload: web::Json<Email>) -> impl Responder {
-    queue.send_to("email", payload.clone()).await.unwrap();
+    let kafka_topic = env::var("KAFKA_TOPIC").unwrap();
+    
+    queue.send_to(&kafka_topic, payload.clone()).await.unwrap();
 
     HttpResponse::Ok().json(payload)
 }

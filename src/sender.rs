@@ -24,11 +24,11 @@ pub fn send_email(receiver: String, subject: String, body: String) {
       .unwrap();
 
   let creds = Credentials::new(smtp_user, smtp_password);
-
+  
   let mailer = SmtpTransport::relay("smtp.gmail.com").unwrap().credentials(creds).build();
 
   match mailer.send(&email) {
       Ok(_) => println!("Email sent to {:?}", receiver),
-      Err(e) => panic!("Error sendind email to {:?}: {:?}", receiver, e),
+      Err(e) => panic!("Error sending email to {:?}: {:?}", receiver, e),
   }
 }

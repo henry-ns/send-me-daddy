@@ -6,6 +6,9 @@ use dotenv::dotenv;
 use kafka::consumer::{Consumer, FetchOffset, GroupOffsetStorage};
 use send_me_daddy::email::Email;
 
+#[path = "../sender.rs"]
+mod sender;
+
 #[tokio::main]
 async fn main() {
     dotenv().ok();
@@ -16,6 +19,7 @@ async fn main() {
     let mut consumer = Consumer::from_hosts(vec![host])
         .with_topic(topic)
         .with_fallback_offset(FetchOffset::Earliest)
+        .with_group("email-group".to_owned())
         .with_offset_storage(GroupOffsetStorage::Kafka)
         .create()
         .unwrap();
@@ -29,13 +33,15 @@ async fn main() {
                     Err(_) => println!("can't pass the value"),
                     Ok(value) => {
                         let data: Email = serde_json::from_str(value).unwrap();
+                        sender::send_email(data.receiver.clone(), data.subject.clone(), data.body.clone());
+
                         println!("CONSUMER - {:?}", data);
                     }
                 }
             });
 
-            consumer.consume_messageset(ms).unwrap();
+             consumer.consume_messageset(ms).unwrap();
         }
-        consumer.commit_consumed().unwrap();
+       consumer.commit_consumed().unwrap();
     }
 }

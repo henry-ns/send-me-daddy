@@ -38,7 +38,8 @@ impl Mail for MyMail {
             .send_to(
                 &topic,
                 Email {
-                    host: "test".to_owned(),
+                    receiver: "".to_owned(),
+                    subject: "test".to_owned(),
                     body: "body".to_owned(),
                 },
             )
