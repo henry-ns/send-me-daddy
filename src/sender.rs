@@ -12,12 +12,26 @@ pub fn send_email(receiver: String, subject: String, body: String) {
   let smtp_user = env::var("SMTP_USER").ok().unwrap();
   let smtp_password = env::var("SMTP_PASSWORD").ok().unwrap();
 
+  let default_sender_name = env::var("DEFAULT_SENDER_NAME").ok();
+  
+  let mut sender_name = smtp_user.clone();
 
-  let sender: String = format!("Sender <{}>", smtp_user);
+  match default_sender_name {
+    Some(value) => match value.as_str(){
+      "" => (),
+      other => sender_name = format!("{} <{}>", other, sender_name)
+    }
+    None =>  (),
+  }
+
+
+  // println!("{}", sender_name);
+
+  // return;
   let to: String = format!("Receiver <{}>", receiver);
 
   let email = Message::builder()
-      .from(sender.parse().unwrap())
+      .from(sender_name.parse().unwrap())
       .to(to.parse().unwrap())
       .subject(subject)
       .body(body)

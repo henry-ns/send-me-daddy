@@ -29,25 +29,27 @@ impl MyMail {
 #[tonic::async_trait]
 impl Mail for MyMail {
     async fn send(&self, request: Request<MailRequest>) -> Result<Response<MailResponse>, Status> {
-        println!("Requested by {:?}", request.get_ref().name);
+        println!("Requested by {:?}", request.get_ref().receiver);
 
         let topic = env::var("KAFKA_TOPIC").unwrap();
+
+        let email = request.get_ref();
         
         let result = self
             .queue
             .send_to(
                 &topic,
                 Email {
-                    receiver: "".to_owned(),
-                    subject: "test".to_owned(),
-                    body: "body".to_owned(),
+                    receiver: email.receiver.clone(),
+                    subject: email.subject.clone(),
+                    body: email.body.clone(),
                 },
             )
             .await;
 
         match result {
             Ok(_) => Ok(Response::new(MailResponse {
-                message: format!("Success {}", request.get_ref().name),
+                message: format!("Success {}", request.get_ref().receiver),
             })),
             Err(e) => Err(Status::new(Code::Internal, format!("Error {}", e))),
         }

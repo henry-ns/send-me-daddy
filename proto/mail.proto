@@ -6,7 +6,9 @@ service Mail {
 }
 
 message MailRequest {
-  string name = 1;
+  string receiver = 1;
+  string subject = 2;
+  string body = 3;
 }
 
 message MailResponse {
